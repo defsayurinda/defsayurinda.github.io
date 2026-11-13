@@ -168,6 +168,13 @@
 "k": "Tulisan"
 },
 {
+"j": "Cara saya memakai AI",
+"d": "Saya memakai Claude untuk kuliah teknik sipil dengan aturan yang saya tulis sendiri. Tiga halaman di bawah menjelaskan aturan itu, contoh perintahnya, dan batas yang saya pegang.",
+"h": "",
+"u": "cara-memakai-ai/",
+"k": "Tulisan"
+},
+{
 "j": "Batasan dan etika",
 "d": "AI mempercepat pekerjaan, tapi nama yang tertulis di laporan tetap nama saya. Aturan di bawah saya pakai supaya semua yang saya kumpulkan bisa saya pertanggungjawabkan.",
 "h": "1. Tidak ada yang dikarang 2. Sumber setiap angka jelas 3. Referensi dicek satu per satu 4. Hitungan diverifikasi dengan cara kedua 5. Keputusan dan pemahaman tetap di saya 6. Data proyek dan data pribadi dijaga 7. Aturan kampus diikuti",
@@ -189,10 +196,10 @@
 "k": "Tulisan"
 },
 {
-"j": "Cara saya memakai AI",
-"d": "Saya memakai Claude untuk kuliah teknik sipil dengan aturan yang saya tulis sendiri. Tiga halaman di bawah menjelaskan aturan itu, contoh perintahnya, dan batas yang saya pegang.",
-"h": "",
-"u": "cara-memakai-ai/",
+"j": "Skill Claude",
+"d": "Skill adalah paket instruksi untuk Claude, berupa folder berisi file SKILL.md. Bagian atas file memuat nama dan deskripsi singkat. Claude membaca deskripsi itu, lalu memuat isi…",
+"h": "Apa itu skill Skill yang saya pakai Cara saya menyusun skill",
+"u": "skill/",
 "k": "Tulisan"
 },
 {
@@ -200,13 +207,6 @@
 "d": "Skill utama saya untuk semua tugas teknik sipil. Halaman ini meringkas isinya. Data pribadi dan data proyek yang ada di versi asli tidak ditampilkan.",
 "h": "Urutan prioritas Tujuh aturan inti Peran dan perintah singkat Format jawaban hitungan Verifikasi sebelum hasil ditampilkan Jebakan yang pernah terjadi Isi lain dalam skill",
 "u": "skill/asisten-teknik-sipil/",
-"k": "Tulisan"
-},
-{
-"j": "Skill Claude",
-"d": "Skill adalah paket instruksi untuk Claude, berupa folder berisi file SKILL.md. Bagian atas file memuat nama dan deskripsi singkat. Claude membaca deskripsi itu, lalu memuat isi…",
-"h": "Apa itu skill Skill yang saya pakai Cara saya menyusun skill",
-"u": "skill/",
 "k": "Tulisan"
 },
 {
