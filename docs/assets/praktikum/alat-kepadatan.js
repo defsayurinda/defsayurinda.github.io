@@ -20,6 +20,9 @@
         { id: 'orde', label: 'Kurva pemadatan', pilihan: [['3', 'Polinomial orde 3'], ['2', 'Polinomial orde 2']],
           bantuan: 'Orde 3 biasanya lebih mengikuti bentuk kurva bila titik ≥ 5; orde 2 lebih stabil bila titik sedikit.' }],
       tabel: [{ id: 'titik', judul: 'Data tiap titik pemadatan', kolom: 'Titik', awal: 5, min: 3, maks: 8, baris: [
+        { id: 'Mpersiapan', label: 'Persiapan: massa tanah basah', simbol: '', satuan: 'gram', opsional: true },
+        { id: 'wAwal', label: 'Persiapan: kadar air awal', simbol: '', satuan: '%', opsional: true },
+        { id: 'tambahAir', label: 'Persiapan: penambahan air', simbol: '', satuan: 'cc', opsional: true },
         { id: 'Mtotal', label: 'Massa tanah basah + cetakan', simbol: 'W<sub>t</sub>', satuan: 'gram' },
         { id: 'W1', label: 'Massa tanah basah + cawan', simbol: 'W<sub>1</sub>', satuan: 'gram' },
         { id: 'W2', label: 'Massa tanah kering + cawan', simbol: 'W<sub>2</sub>', satuan: 'gram' },
@@ -50,14 +53,17 @@
             { titik: t.map(function (x) { return [x.w, x.gammaD]; }), garis: false, penanda: true, warna: 'aksen', label: 'Titik uji' }],
           tanda: [{ x: r.wopt, y: r.gdmaks, teks: 'optimum (' + f(r.wopt, 2) + '%; ' + f(r.gdmaks, 3) + ')', atas: true, rata: r.wopt > (w0 + w1) / 2 ? 'kiri' : 'kanan' }] }),
           'Kurva pemadatan dengan garis rongga udara nol (ZAV). Titik optimum diambil dari puncak kurva di dalam rentang data.');
-        h += '<h3>Tabel hasil</h3>' + U.tabel(['Uraian', 'Simbol', 'Satuan'].concat(t.map(function (x) { return 'Titik ' + x.nama; })), [
+        var persiapan = [['Mpersiapan', 'Massa tanah basah (persiapan)', 'gram', 1], ['wAwal', 'Kadar air awal', '%', 2], ['tambahAir', 'Penambahan air', 'cc', 0]]
+          .filter(function (p) { return t.some(function (x) { return x[p[0]] !== null && x[p[0]] !== undefined; }); })
+          .map(function (p) { return [p[1], '', p[2]].concat(t.map(function (x) { return x[p[0]] === null || x[p[0]] === undefined ? '–' : f(x[p[0]], p[3]); })); });
+        h += '<h3>Tabel hasil</h3>' + U.tabel(['Uraian', 'Simbol', 'Satuan'].concat(t.map(function (x) { return 'Titik ' + x.nama; })), persiapan.concat([
           kolom(t, 'Massa air', 'W<sub>1</sub> − W<sub>2</sub>', 'gram', function (x) { return x.air; }, 3),
           kolom(t, 'Massa tanah kering', 'W<sub>2</sub> − W<sub>3</sub>', 'gram', function (x) { return x.kering; }, 3),
           kolom(t, 'Kadar air', 'w', '%', function (x) { return x.w; }, 2),
           kolom(t, 'Massa tanah basah', 'W<sub>t</sub> − W<sub>m</sub>', 'gram', function (x) { return x.basah; }, 3),
           kolom(t, 'Kepadatan basah', 'γ', 'g/cm³', function (x) { return x.gamma; }, 3),
           kolom(t, 'Kepadatan kering', 'γ<sub>d</sub>', 'g/cm³', function (x) { return x.gammaD; }, 3),
-          kolom(t, 'Kepadatan ZAV', 'γ<sub>zav</sub>', 'g/cm³', function (x) { return x.zav; }, 3)]);
+          kolom(t, 'Kepadatan ZAV', 'γ<sub>zav</sub>', 'g/cm³', function (x) { return x.zav; }, 3)]));
         var a = t[0];
         h += '<h3>Langkah hitungan (titik ' + a.nama + ')</h3>' +
           U.langkah('Kepadatan basah', U.rumus('\\gamma = \\dfrac{W_t - W_m}{V} = \\dfrac{' + U.t(a.Mtotal, 3) + ' - ' + U.t(+m.param.Mcetakan, 3) + '}{' + U.t(+m.param.V, 3) + '} = ' + U.t(a.gamma, 3) + '\\ \\text{g/cm}^3 \\qquad (1)') +

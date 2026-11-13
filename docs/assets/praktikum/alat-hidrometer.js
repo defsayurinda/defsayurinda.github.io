@@ -8,14 +8,14 @@
   function formatMm(v) { return f(v, v >= 1 ? 2 : v >= 0.01 ? 3 : 4); }
 
   function grafik(r) {
-    var dmin = Math.pow(10, Math.floor(Math.log10(Math.min.apply(null, r.titik.map(function (t) { return t.mm; })))));
+    var dmin = Math.min(0.001, Math.pow(10, Math.floor(Math.log10(Math.min.apply(null, r.titik.map(function (t) { return t.mm; }))))));
     var dmaks = Math.max(10, Math.pow(10, Math.ceil(Math.log10(r.titik[0].mm))));
     var saringan = r.titik.filter(function (t) { return t.asal === 'saringan'; }), hidro = r.titik.filter(function (t) { return t.asal === 'hidrometer'; });
     var tanda = [];
     [['D₁₀', r.D10, 10], ['D₃₀', r.D30, 30], ['D₆₀', r.D60, 60]].forEach(function (d) {
-      if (d[1]) tanda.push({ x: d[1], y: d[2], teks: d[0] + ' = ' + formatMm(d[1]) + ' mm', posisi: d[1] < Math.sqrt(dmin * dmaks) ? 'kiri' : 'kanan' }); // sumbu terbalik: butir kecil di kanan
+      if (d[1]) tanda.push({ x: d[1], y: d[2], teks: d[0] + ' = ' + formatMm(d[1]) + ' mm', posisi: d[1] < Math.sqrt(dmin * dmaks) ? 'kanan' : 'kiri' }); // seperti form lab: butir kecil di kiri
     });
-    return Grafik.plot({ id: 'gradasi-gabungan', judul: 'Kurva gradasi gabungan', x: { min: dmin, max: dmaks, log: true, balik: true, label: 'Ukuran butir (mm, skala log)' },
+    return Grafik.plot({ id: 'gradasi-gabungan', judul: 'Kurva gradasi gabungan', x: { min: dmin, max: dmaks, log: true, balik: false, label: 'Ukuran butir (mm, skala log)' },
       y: { min: 0, max: 100, label: 'Persen lolos (%)', tick: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
       vertikal: [{ x: 4.75, teks: 'No. 4' }, { x: 0.075, teks: 'No. 200' }, { x: r.batasLempung, teks: String(r.batasLempung).replace('.', ',') + ' mm' }],
       seri: [{ titik: r.titik.map(function (t) { return [t.mm, t.lolos]; }), warna: 'teks', tebal: 1.8 },
@@ -34,6 +34,8 @@
         dariAlat: { alat: 'saringan', nama: 'analisa saringan', ambil: function (h) { return h.P10; }, d: 2 } },
       { id: 'P4', label: 'Lolos No. 4 seluruh contoh', satuan: '%', bantuan: 'Hanya dipakai bila F<sub>10</sub> < 100%.',
         dariAlat: { alat: 'saringan', nama: 'analisa saringan', ambil: function (h) { return h.P4; }, d: 2 } },
+      { id: 'P200form', label: 'Lolos No. 200 seluruh contoh (untuk N′ form lab)', satuan: '%', bantuan: 'Opsional. Form lab menghitung N′ = N/100 × % lolos saringan No. 200. Bila diisi, kolom N′ versi form ikut ditampilkan.',
+        dariAlat: { alat: 'saringan', nama: 'analisa saringan', ambil: function (h) { return h.P200; }, d: 3 } },
       { id: 'Cm', label: 'Koreksi meniskus, C<sub>m</sub>', bantuan: 'Ditambahkan ke bacaan untuk menghitung L. Isi 0 bila tidak dipakai.' },
       { id: 'Cd', label: 'Koreksi nol/dispersan, C<sub>d</sub>', bantuan: 'Dikurangkan dari bacaan. Isi 0 bila koreksi suhu k sudah mencakupnya.' },
       { id: 'batasLempung', label: 'Batas lanau–lempung', pilihan: [['0.002', '0,002 mm'], ['0.005', '0,005 mm (ASTM D422)']] }],
@@ -57,7 +59,7 @@
     kosong: { param: { W: '', Gs: '', a: '', F10: 100, P4: '', Cm: 0, Cd: 0, batasLempung: '0.002' } },
     hitung: function (m) {
       var p = m.param;
-      return H.hitung({ W: p.W, Gs: p.Gs, a: p.a, F10: p.F10, P4: p.P4, Cm: p.Cm, Cd: p.Cd, batasLempung: +p.batasLempung,
+      return H.hitung({ W: p.W, Gs: p.Gs, a: p.a, F10: p.F10, P4: p.P4, P200form: p.P200form, Cm: p.Cm, Cd: p.Cd, batasLempung: +p.batasLempung,
         bacaan: m.tabel.bacaan, ayakan: m.tabel.ayakan.map(function (b) { return { nama: b.nama, tertahan: b.nilai }; }) });
     },
     hasil: function (m, r) { return { P4: r.P4, P10: r.P10, P40: r.P40, P200: r.P200, D10: r.D10, D30: r.D30, D60: r.D60, fraksi: r.fraksi }; },
@@ -71,11 +73,13 @@
       h += U.ringkasan(kartu.concat([U.kartu('Koefisien gradasi', r.Cu ? 'C<sub>u</sub> ' + f(r.Cu, 2) : '–', r.Cc ? 'C<sub>c</sub> = ' + f(r.Cc, 2) : 'D<sub>10</sub> belum terbaca')]));
       h += U.grafik(grafik(r), 'Kurva gradasi gabungan saringan dan hidrometer. Persen lolos terhadap seluruh contoh.');
       var b = r.bacaan;
-      h += '<h3>Tabel hasil hidrometer</h3>' + U.tabel([{ teks: 't (menit)' }, { teks: 'R' }, { teks: 'T (°C)' }, 'R<sub>c</sub> = R + k − C<sub>d</sub>', 'L (cm)', 'K', 'D (mm)', 'P (%)', 'P′ (%)'],
+      var adaForm = r.P200form !== null;
+      h += '<h3>Tabel hasil hidrometer</h3>' + U.tabel([{ teks: 'Rh' }, { teks: 'Waktu (menit)' }, { teks: 'Suhu (°C)' }, 'L (cm)', 'K', '(L/t)<sup>½</sup>', 'Diameter (mm)', 'Koreksi suhu (k)', 'Rh + k − C<sub>d</sub>', 'N (%)', 'P′ (F<sub>10</sub>) (%)'].concat(adaForm ? ['N′ form (%)'] : []),
         b.map(function (x) {
-          return [f(x.t, x.t < 1 ? 1 : 0), f(x.R, 1), f(x.T, 1), f(x.Rc, 2), f(x.L, 2) + (x.Lmanual ? '*' : ''), f(x.K, 5) + (x.Kmanual ? '*' : ''), formatMm(x.D), f(x.P, 2), f(x.Ptotal, 2)];
+          return [f(x.R, 2), f(x.t, x.t < 1 ? 1 : 0), f(x.T, 1), f(x.L, 2) + (x.Lmanual ? '*' : ''), f(x.K, 5) + (x.Kmanual ? '*' : ''), f(Math.sqrt(x.L / x.t), 3), formatMm(x.D), f(x.k, 2), f(x.Rc, 2), f(x.P, 3), f(x.Ptotal, 3)].concat(adaForm ? [f(x.Nform, 3)] : []);
         }), null, { angkaMulai: 0 });
-      h += '<p class="kecil redup">P = persen lolos terhadap contoh hidrometer; P′ = terhadap seluruh contoh (× F<sub>10</sub>/100). Tanda * = nilai diisi manual.</p>';
+      h += '<p class="kecil redup">Urutan kolom mengikuti form lab. N = persen lolos terhadap contoh hidrometer; P′ = terhadap seluruh contoh (× F<sub>10</sub>/100, ASTM D422) dan dipakai untuk kurva' +
+        (adaForm ? '; N′ form = N/100 × % lolos No. 200, seperti rumus di form lab' : '') + '. Tanda * = nilai diisi manual.</p>';
       if (r.ayakan.length) {
         h += '<h3>Tabel saringan contoh hidrometer</h3>' + U.tabel([{ teks: 'Saringan' }, { teks: 'Ukuran (mm)', angka: true }, { teks: 'Tertahan (gram)', angka: true }, 'Kumulatif (gram)', 'Lolos (%)', 'Lolos seluruh contoh (%)'],
           r.ayakan.map(function (a) { return [a.nama, formatMm(a.mm), f(a.tertahan, 3), f(a.kumulatif, 3), f(a.lolos, 2), f(a.lolosTotal, 2)]; }));
@@ -95,6 +99,8 @@
         '<p class="ket">t dalam <strong>menit</strong>, sesuai satuan pada tabel K ASTM D422.</p>');
       h += U.langkah('Persen lolos', U.rumus('P = \\dfrac{a\\,R_c}{W}\\times 100\\% = \\dfrac{' + U.t(r.a, 4) + '\\times' + U.t(x.Rc, 2) + '}{' + U.t(p.W, 2) + '}\\times 100\\% = ' + U.t(x.P, 2) + '\\% \\qquad (6)') +
         U.rumus('P\' = P\\times\\dfrac{F_{10}}{100} = ' + U.t(x.P, 2) + '\\times\\dfrac{' + U.t(r.F10, 2) + '}{100} = ' + U.t(x.Ptotal, 2) + '\\% \\qquad (7)') +
+        (adaForm ? U.rumus('N\' = \\dfrac{N}{100}\\times \\%\\,\\text{lolos No. 200} = \\dfrac{' + U.t(x.P, 3) + '}{100}\\times' + U.t(r.P200form, 3) + ' = ' + U.t(x.Nform, 3) + '\\% \\qquad (8)') +
+          '<p class="ket">Persamaan (8) mengikuti form lab. Persamaan (7) mengikuti ASTM D422 dan dipakai untuk kurva gradasi gabungan.</p>' : '') +
         '<p class="ket">R<sub>c</sub> = R + k − C<sub>d</sub> = ' + f(x.R, 1) + ' + ' + f(x.k, 2) + ' − ' + f(r.Cd, 2) + ' = ' + f(x.Rc, 2) + '.</p>');
       return h;
     },

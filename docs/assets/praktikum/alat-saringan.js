@@ -8,12 +8,12 @@
   function formatMm(v) { return f(v, v >= 1 ? (v >= 10 ? 1 : 2) : 3); }
 
   function grafik(r) {
-    var dmaks = Math.max(10, Math.pow(10, Math.ceil(Math.log10(r.titik[0].mm)))), dmin = 0.01;
+    var dmaks = Math.max(10, Math.pow(10, Math.ceil(Math.log10(r.titik[0].mm)))), dmin = 0.001; // sama dengan grafik form lab: 0,001–10 mm
     var tanda = [];
     [['D₁₀', r.D10, 10], ['D₃₀', r.D30, 30], ['D₆₀', r.D60, 60]].forEach(function (d) {
-      if (d[1]) tanda.push({ x: d[1], y: d[2], teks: d[0] + ' = ' + formatMm(d[1]) + ' mm', posisi: d[1] < Math.sqrt(dmin * dmaks) ? 'kiri' : 'kanan' });
+      if (d[1]) tanda.push({ x: d[1], y: d[2], teks: d[0] + ' = ' + formatMm(d[1]) + ' mm', posisi: d[1] < Math.sqrt(dmin * dmaks) ? 'kanan' : 'kiri' });
     });
-    return Grafik.plot({ id: 'gradasi', judul: 'Kurva gradasi', x: { min: dmin, max: dmaks, log: true, balik: true, label: 'Ukuran butir (mm, skala log)' },
+    return Grafik.plot({ id: 'gradasi', judul: 'Kurva gradasi', x: { min: dmin, max: dmaks, log: true, balik: false, label: 'Ukuran butir (mm, skala log)' },
       y: { min: 0, max: 100, label: 'Persen lolos (%)', tick: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
       vertikal: [{ x: 4.75, teks: 'No. 4' }, { x: 0.075, teks: 'No. 200' }],
       seri: [{ titik: r.titik.map(function (t) { return [t.mm, t.lolos]; }), penanda: true, warna: 'aksen' }],
@@ -55,7 +55,7 @@
         r.Cc ? 'C<sub>c</sub> = ' + f(r.Cc, 2) : 'D<sub>10</sub> tidak terbaca dari saringan')]));
       h += U.grafik(grafik(r), 'Kurva gradasi: persen lolos terhadap ukuran butir (log). D₁₀, D₃₀, D₆₀ dibaca dengan interpolasi pada skala log.');
       h += '<h3>Tabel hasil</h3>' + U.tabel([{ teks: 'Saringan' }, { teks: 'Ukuran (mm)', angka: true }, { teks: 'Tertahan (gram)', angka: true },
-        { teks: 'Kumulatif (gram)' }, { teks: 'Tertahan kumulatif (%)' }, { teks: 'Lolos (%)' }],
+        { teks: 'Jumlah berat tertahan (gram)' }, { teks: 'Jumlah persentase di atas (%)' }, { teks: 'Jumlah persentase melalui (%)' }],
       r.ayakan.map(function (a) { return [a.nama, formatMm(a.mm), f(a.tertahan, 3), f(a.kumulatif, 3), f(a.persenTertahan, 2), f(a.lolos, 2)]; }),
       ['Pan', '', f(r.pan, 3), f(r.jumlah, 3), '', '']);
       h += '<p class="kecil redup">Jumlah tertahan termasuk pan ' + f(r.jumlah, 3) + ' gram dari berat contoh ' + f(m.param.beratTotal, 3) + ' gram (selisih ' + f(r.hilang, 2) + '%).</p>';

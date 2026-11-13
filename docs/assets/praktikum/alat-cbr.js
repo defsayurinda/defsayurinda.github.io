@@ -5,6 +5,7 @@
   var H = window.HitungCBR, f = Umum.f;
   var WAKTU = [0, 0.25, 0.5, 1, 1.5, 2, 3, 4, 6, 8, 10, 12];
   var KGF_KN = 0.00980665;
+  var BEBAN_STD = [13.35, 20.02]; // kN pada penetrasi 2,54 dan 5,08 mm, seperti form CBR lab UNJA
 
   // Penetrasi baku 1,27 mm/menit; kolom penetrasi terisi supaya cukup mengetik beban.
   function barisAwal() { return WAKTU.map(function (t) { return { t: t, penetrasi: Math.round(1.27 * t * 100) / 100 }; }); }
@@ -41,8 +42,9 @@
       { id: 'satuanBeban', label: 'Kolom beban berisi', pilihan: [['kN', 'Beban dalam kN (seperti form lab)'], ['kgf', 'Beban dalam kgf'], ['arloji', 'Bacaan arloji cincin beban']] },
       { id: 'kalibrasi', label: 'Kalibrasi cincin beban', satuan: 'kN/divisi', tampilJika: function (p) { return p.satuanBeban === 'arloji'; } },
       { id: 'A', label: 'Luas piston', satuan: 'mm²', bantuan: 'Piston standar 1935 mm² (3 in², diameter ±49,6 mm).' },
-      { id: 'std1', label: 'Tegangan standar pada 2,54 mm', satuan: 'MPa', bantuan: '6,9 MPa (1000 psi), ASTM D1883.' },
-      { id: 'std2', label: 'Tegangan standar pada 5,08 mm', satuan: 'MPa', bantuan: '10,3 MPa (1500 psi), ASTM D1883.' },
+      { id: 'caraStd', label: 'Pembanding standar', pilihan: [['form', 'Beban standar 13,35 kN dan 20,02 kN (seperti form lab)'], ['tegangan', 'Tegangan standar dalam MPa (ASTM D1883)']] },
+      { id: 'std1', label: 'Tegangan standar pada 2,54 mm', satuan: 'MPa', bantuan: '6,9 MPa (1000 psi), ASTM D1883.', tampilJika: function (p) { return p.caraStd === 'tegangan'; } },
+      { id: 'std2', label: 'Tegangan standar pada 5,08 mm', satuan: 'MPa', bantuan: '10,3 MPa (1500 psi), ASTM D1883.', tampilJika: function (p) { return p.caraStd === 'tegangan'; } },
       { id: 'koreksi', label: 'Koreksi titik nol', pilihan: [['otomatis', 'Otomatis bila awal kurva cekung'], ['tidak', 'Tanpa koreksi'], ['manual', 'Geser manual']] },
       { id: 'koreksiManual', label: 'Pergeseran titik nol', satuan: 'mm', tampilJika: function (p) { return p.koreksi === 'manual'; } },
       { id: 'H0', label: 'Tinggi benda uji', satuan: 'mm', bantuan: 'Untuk persen pengembangan. Cetakan ASTM D1883: 116,4 mm.' },
@@ -63,19 +65,21 @@
         keterangan: 'Kolom pertama sebelum perendaman, kolom kedua sesudah. Nama kolom bisa diubah.' },
       { id: 'swell', jenis: 'daftar', judul: 'Pengembangan selama perendaman (opsional)', namaPendek: 'Pengembangan', maks: 20, awal: 5,
         kolom: [{ id: 'waktu', label: 'Tanggal / jam', teks: true }, { id: 'bacaan', label: 'Bacaan arloji', satuan: 'divisi' }] }],
-    contoh: { param: { jenis: 'rendaman', satuanBeban: 'kN', kalibrasi: '', A: 1935, std1: 6.9, std2: 10.3, koreksi: 'otomatis', koreksiManual: '', H0: 116.4, satuanArloji: '0.0254', gdmaks: 1.75 },
+    contoh: { param: { jenis: 'rendaman', satuanBeban: 'kN', kalibrasi: '', A: 1935, caraStd: 'form', std1: 6.9, std2: 10.3, koreksi: 'otomatis', koreksiManual: '', H0: 116.4, satuanArloji: '0.0254', gdmaks: 1.75 },
       tabel: {
         atas: barisAwal().map(function (b, i) { b.beban = [0, 0.18, 0.36, 0.66, 0.90, 1.10, 1.42, 1.60, 1.98, 2.22, 2.40, 2.55][i]; return b; }),
         bawah: barisAwal().map(function (b, i) { b.beban = [0, 0.05, 0.14, 0.40, 0.68, 0.92, 1.30, 1.44, 1.74, 1.98, 2.15, 2.28][i]; return b; }),
         kondisi: [{ nama: 'Sebelum', Wt: 9850, Wm: 5480, V: 2124, W1: 58.4, W2: 50.9, W3: 12.3 }, { nama: 'Sesudah', Wt: 9960, Wm: 5480, V: 2124, W1: 60.1, W2: 51.2, W3: 12.2 }],
         swell: [{ waktu: 'Hari 0, 08.00', bacaan: 0 }, { waktu: 'Hari 1, 08.00', bacaan: 45 }, { waktu: 'Hari 2, 08.00', bacaan: 78 }, { waktu: 'Hari 3, 08.00', bacaan: 96 }, { waktu: 'Hari 4, 08.00', bacaan: 104 }] } },
-    kosong: { param: { jenis: 'rendaman', satuanBeban: 'kN', kalibrasi: '', A: 1935, std1: 6.9, std2: 10.3, koreksi: 'otomatis', koreksiManual: '', H0: 116.4, satuanArloji: '0.0254', gdmaks: '' },
+    kosong: { param: { jenis: 'rendaman', satuanBeban: 'kN', kalibrasi: '', A: 1935, caraStd: 'form', std1: 6.9, std2: 10.3, koreksi: 'otomatis', koreksiManual: '', H0: 116.4, satuanArloji: '0.0254', gdmaks: '' },
       tabel: { atas: barisAwal(), bawah: barisAwal(), kondisi: [{ nama: 'Sebelum' }, { nama: 'Sesudah' }] } },
     hitung: function (m) {
       var p = m.param;
       if (p.satuanBeban === 'arloji' && !(p.kalibrasi > 0)) return { galat: ['Isi kalibrasi cincin beban (kN per divisi).'] };
       function ubah(daftar) { return daftar.map(function (b) { return Object.assign({}, b, { bacaan: b.beban, beban: keKN(b.beban, p) }); }); }
-      return H.hitung({ A: p.A, std1: p.std1, std2: p.std2, koreksi: p.koreksi, koreksiManual: p.koreksiManual, gdmaks: p.gdmaks, H0: p.H0, satuanArloji: +p.satuanArloji,
+      // Form lab: CBR = P / 13,35 kN × 100 dan P / 20,02 kN × 100, setara tegangan standar = P_std / A.
+      var form = p.caraStd !== 'tegangan';
+      return H.hitung({ A: p.A, std1: form ? BEBAN_STD[0] * 1000 / p.A : p.std1, std2: form ? BEBAN_STD[1] * 1000 / p.A : p.std2, koreksi: p.koreksi, koreksiManual: p.koreksiManual, gdmaks: p.gdmaks, H0: p.H0, satuanArloji: +p.satuanArloji,
         atas: ubah(m.tabel.atas), bawah: ubah(m.tabel.bawah), kondisi: m.tabel.kondisi, swell: m.tabel.swell });
     },
     hasil: function (m, r) { return { CBR: r.CBR, pengembangan: r.pengembangan }; },
@@ -118,11 +122,16 @@
           U.rumus('x_0 = x_i - \\dfrac{P_i}{m} = ' + U.t(ts.x, 2) + ' - \\dfrac{' + U.t(ts.y, 3) + '}{' + U.t(s0.koreksi.lereng, 4) + '} = ' + U.t(s0.koreksi.x0, 3) + '\\ \\text{mm} \\qquad (1)') +
           '<p class="ket">Beban dibaca pada ' + f(s0.x1, 2) + ' mm dan ' + f(s0.x2, 2) + ' mm (interpolasi linier).</p>');
       }
-      if (s0.P1 !== null) {
+      if (p.caraStd !== 'tegangan') {
+        if (s0.P1 !== null) h += U.langkah('CBR pada 2,54 mm', U.rumus('CBR_{2{,}54} = \\dfrac{P_{2{,}54}}{13{,}35}\\times 100\\% = \\dfrac{' + U.t(s0.P1, 3) + '}{13{,}35}\\times 100\\% = ' + U.t(s0.CBR1, 2) + '\\% \\qquad (2)') +
+          '<p class="ket">P = beban penetrasi (kN); 13,35 kN = beban standar pada penetrasi 2,54 mm, seperti pada form lab.</p>');
+        if (s0.P2 !== null) h += U.langkah('CBR pada 5,08 mm', U.rumus('CBR_{5{,}08} = \\dfrac{P_{5{,}08}}{20{,}02}\\times 100\\% = \\dfrac{' + U.t(s0.P2, 3) + '}{20{,}02}\\times 100\\% = ' + U.t(s0.CBR2, 2) + '\\% \\qquad (3)') +
+          '<p class="ket">20,02 kN = beban standar pada penetrasi 5,08 mm. Nilai CBR yang dilaporkan biasanya pada 2,54 mm; bila nilai 5,08 mm lebih besar, pengujian diulang, dan bila tetap, nilai 5,08 mm yang dipakai.</p>');
+      } else if (s0.P1 !== null) {
         h += U.langkah('Tegangan dan CBR pada 2,54 mm', U.rumus('\\sigma = \\dfrac{P}{A} = \\dfrac{' + U.t(s0.P1, 3) + '\\times 1000}{' + U.t(p.A, 0) + '} = ' + U.t(s0.s1, 3) + '\\ \\text{MPa} \\qquad (2)') +
           U.rumus('CBR_{2{,}54} = \\dfrac{\\sigma}{\\sigma_{std}}\\times 100\\% = \\dfrac{' + U.t(s0.s1, 3) + '}{' + U.t(p.std1, 1) + '}\\times 100\\% = ' + U.t(s0.CBR1, 2) + '\\% \\qquad (3)'));
       }
-      if (s0.P2 !== null) {
+      if (p.caraStd === 'tegangan' && s0.P2 !== null) {
         h += U.langkah('CBR pada 5,08 mm', U.rumus('CBR_{5{,}08} = \\dfrac{' + U.t(s0.P2, 3) + '\\times 1000 / ' + U.t(p.A, 0) + '}{' + U.t(p.std2, 1) + '}\\times 100\\% = ' + U.t(s0.CBR2, 2) + '\\% \\qquad (4)') +
           '<p class="ket">Nilai CBR yang dilaporkan biasanya pada 2,54 mm. Bila nilai 5,08 mm lebih besar, pengujian diulang; bila tetap, nilai 5,08 mm yang dipakai.</p>');
       }
