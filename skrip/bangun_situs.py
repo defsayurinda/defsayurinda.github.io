@@ -45,9 +45,10 @@ def peta_halaman():
     """Kembalikan daftar (berkas sumber, folder keluaran relatif terhadap docs/)."""
     peta = [(KONTEN / "tentang.md", "tentang/")]
     for bagian in ("cara-memakai-ai", "skill"):
-        for f in sorted((KONTEN / bagian).glob("*.md")):
+        # Urutkan menurut nama (peka huruf besar) supaya urutan sama di Windows dan Linux/CI.
+        for f in sorted((KONTEN / bagian).glob("*.md"), key=lambda p: p.name):
             peta.append((f, f"{bagian}/" if f.name == "README.md" else f"{bagian}/{f.stem}/"))
-    for f in sorted((KONTEN / "catatan").glob("*.md")):
+    for f in sorted((KONTEN / "catatan").glob("*.md"), key=lambda p: p.name):
         peta.append((f, f"catatan/{f.stem}/"))
     return peta
 
@@ -476,12 +477,16 @@ def main():
     periksa = "--periksa" in sys.argv
     berubah = []
     for jalur, isi in bangun().items():
-        lama = jalur.read_text(encoding="utf-8") if jalur.exists() else None
+        # Bandingkan byte apa adanya (newline="") dan tulis selalu dengan LF, supaya hasil bangun di Windows sama dengan di Linux/CI.
+        lama = None
+        if jalur.exists():
+            with open(jalur, encoding="utf-8", newline="") as berkas:
+                lama = berkas.read()
         if lama != isi:
             berubah.append(jalur.relative_to(AKAR).as_posix())
             if not periksa:
                 jalur.parent.mkdir(parents=True, exist_ok=True)
-                jalur.write_text(isi, encoding="utf-8")
+                jalur.write_text(isi, encoding="utf-8", newline="\n")
     if periksa and berubah:
         print("Situs belum dibangun ulang. Jalankan: python3 skrip/bangun_situs.py\n  " + "\n  ".join(berubah))
         sys.exit(1)

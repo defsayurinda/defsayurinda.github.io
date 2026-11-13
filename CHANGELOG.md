@@ -8,6 +8,7 @@ Semua perubahan penting dicatat di sini. Format mengikuti [Keep a Changelog](htt
 - Kalkulator tiang bor N-SPT, pondasi dangkal, dan penurunan konsolidasi dengan langkah hitungan.
 - Bank soal latihan geoteknik dengan angka acak dan pembahasan.
 - Enam belas alat pengolah data Praktikum Mekanika Tanah dengan ekspor Word dan Excel.
+- Alat permeabilitas tinggi tekan tetap dan tinggi tekan turun; alat saringan, hidrometer, CBR, pemadatan, UCS, dan geser langsung disesuaikan dengan form lab (versi cache 0.9.1 supaya browser memuat skrip baru).
 - Registri alat `konten/alat.json`, `skrip/buat.py`, uji registri, dan workflow yang membangun ulang situs saat `konten/` berubah.
 - Skill proyek `/tambah-alat`, `/tambah-catatan`, `/tambah-soal`, `/audit-rumus`, `/rilis`, dan `PANDUAN.md`.
 - Pencarian seluruh situs (`/cari/`), mode offline dengan service worker, tombol "Laporkan salah hitung" di setiap alat, dan lencana status sumber dari registri.
