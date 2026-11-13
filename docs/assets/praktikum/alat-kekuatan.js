@@ -32,7 +32,7 @@
       contoh: { param: { bentuk: 'bulat', ukuran: 6.31, tinggi: 2, kalibrasi: 0.54, koreksiLuas: 'tidak' }, tabel: {
         benda: [{ nama: '1', P: 8 }, { nama: '2', P: 16 }, { nama: '3', P: 24 }],
         bacaan: GESER.map(function (b, i) { var o = { geser: b.geser }; DIAL.forEach(function (d, j) { if (d[i] !== undefined) o['d' + j] = d[i]; }); return o; }) } },
-      kosong: { param: { bentuk: 'bulat', ukuran: '', tinggi: '', kalibrasi: '', koreksiLuas: 'tidak' } },
+      kosong: { param: { bentuk: 'bulat', ukuran: '', tinggi: '', kalibrasi: 0.54, koreksiLuas: 'tidak' } },
       hitung: function (m) {
         return H.geserLangsung({ bentuk: m.param.bentuk, ukuran: m.param.ukuran, kalibrasi: m.param.kalibrasi, koreksiLuas: m.param.koreksiLuas,
           benda: m.tabel.benda, bacaan: m.tabel.bacaan });
@@ -134,8 +134,13 @@
           vertikal: [{ x: 15, teks: 'ε = 15%' }], horizontal: [{ y: r.quKPa / 2, teks: 'qu/2' }],
           tanda: [{ x: r.epsQu, y: r.quKPa, teks: 'qu = ' + f(r.quKPa, 1) + ' kPa', posisi: r.epsQu > emaks * 0.6 ? 'kiri' : 'kanan', atas: true }] }),
           'Kurva tegangan terhadap regangan aksial dengan koreksi luas. Garis putus-putus mendatar: q<sub>u</sub>/2 untuk E<sub>50</sub>.');
-        h += '<h3>Tabel hasil</h3>' + U.tabel([{ teks: 'Arloji regangan' }, { teks: 'ΔL (cm)', angka: true }, { teks: 'ε (%)', angka: true }, 'Arloji beban', 'P (' + (p.satuanBeban === 'kN' ? 'kN' : 'kg') + ')', 'A terkoreksi (cm²)', 'σ (' + sat + ')', 'σ (kPa)'],
-          T.map(function (t) { return [f(t.regangan, 0), f(t.dL, 4), f(t.eps, 2), f(t.beban, 1), f(t.P, p.satuanBeban === 'kN' ? 4 : 3), f(t.A, 3), f(t.sigma, dS), f(t.kPa, 2)]; }), null, { angkaMulai: 0 });
+        // Urutan kolom mengikuti form lab: waktu, regangan (bacaan, %), beban (bacaan, kalibrasi, beban), luas (angka koreksi, terkoreksi), tegangan.
+        h += '<h3>Tabel hasil</h3>' + U.tabel([{ teks: 'Waktu (menit)' }, { teks: 'Pembacaan arloji regangan' }, { teks: 'Regangan (%)' }, 'Pembacaan arloji beban', 'Kalibrasi proving ring', 'Beban (' + (p.satuanBeban === 'kN' ? 'kN' : 'kg') + ')',
+          'Angka koreksi 1/(1 − ε)', 'Luas terkoreksi (cm²)', 'Tegangan (' + sat + ')', 'Tegangan (kPa)'],
+          T.map(function (t) {
+            return [t.t === null || t.t === undefined ? '–' : f(t.t, t.t % 1 ? 1 : 0), f(t.regangan, 0), f(t.eps, 2), f(t.beban, 1), f(+p.kalibrasi, 4), f(t.P, p.satuanBeban === 'kN' ? 4 : 3),
+              f(1 / (1 - t.eps / 100), 3), f(t.A, 3), f(t.sigma, dS), f(t.kPa, 2)];
+          }), null, { angkaMulai: 0 });
         var t1 = r.puncak;
         h += '<h3>Langkah hitungan (titik puncak)</h3>';
         h += U.langkah('Luas awal', U.rumus('A_0 = \\tfrac{1}{4}\\pi D^2 = \\tfrac{1}{4}\\pi\\times' + U.t(p.diameter, 2) + '^2 = ' + U.t(r.A0, 3) + '\\ \\text{cm}^2 \\qquad (1)'));

@@ -459,5 +459,32 @@ for jenis_, N_, harap in (("pasir", 4, "Sangat lepas"), ("pasir", 10, "Lepas"), 
                                              str(P / "hitung-lapangan.js"), jenis_, str(N_)], text=True))
     benar(f"Terzaghi & Peck: {jenis_} N={N_} → {harap} (dapat {k_})", k_ == harap)
 
+# ---------------------------------------------------------------- permeabilitas (ASTM D2434 / D5084, form lab UNJA)
+# CONTOH-PRAKTIKUM: contoh hitungan constant head dari laporan praktikum (tulisan tangan, diberikan Defsa, November 2026):
+# D = 6,4 cm, L = 6 cm, h = 70 cm, Q = 99 / 105 / 96 ml dalam t = 30 detik → k1 ≈ 0,0088 cm/s, k2 ≈ 0,00933 cm/s (dengan π = 3,14).
+A_ = math.pi * 6.4 ** 2 / 4
+uji_ = [{"nama": "1", "h": 70, "Q": 99, "t": 30}, {"nama": "2", "h": 70, "Q": 105, "t": 30}, {"nama": "3", "h": 70, "Q": 96, "t": 30}]
+r = js("hitung-permeabilitas.js", "tetap", {"D": 6.4, "L": 6, "uji": uji_})
+cocok("permeabilitas tetap: A = ¼ π D²", A_, r["A"])
+for u_, x in zip(uji_, r["uji"]):
+    cocok(f"permeabilitas tetap {u_['nama']}: k = Q L / (A h t)", u_["Q"] / u_["t"] * 6 / (A_ * 70), x["k"])
+benar("permeabilitas tetap: k1 ≈ 0,0088 cm/s seperti contoh tangan", round(r["uji"][0]["k"], 4) == 0.0088)
+benar("permeabilitas tetap: k2 ≈ 0,0093 cm/s seperti contoh tangan", round(r["uji"][1]["k"], 4) == 0.0093)
+cocok("permeabilitas tetap: k rata-rata", sum(u_["Q"] for u_ in uji_) / 3 / 30 * 6 / (A_ * 70), r["k"])
+benar("permeabilitas tetap: h = 0 ditolak", js("hitung-permeabilitas.js", "tetap", {"D": 6.4, "L": 6, "uji": [{"nama": "1", "h": 0, "Q": 99, "t": 30}]})["galat"])
+# Tinggi tekan turun: k = a L / (A t) ln(h1/h2). Uji sifat: k sebanding 1/t, dan h1/h2 = e memberi k = a L / (A t).
+a_ = math.pi * 1.0 ** 2 / 4
+r = js("hitung-permeabilitas.js", "turun", {"d": 1, "D": 6.4, "L": 6, "uji": [{"nama": "1", "h1": 100, "h2": 50, "t": 420}, {"nama": "2", "h1": 100, "h2": 50, "t": 210}]})
+cocok("permeabilitas turun: k = a L ln(h1/h2) / (A t)", a_ * 6 / (A_ * 420) * math.log(2), r["uji"][0]["k"])
+cocok("permeabilitas turun: t setengah → k dua kali", 2 * r["uji"][0]["k"], r["uji"][1]["k"])
+r = js("hitung-permeabilitas.js", "turun", {"d": 1, "D": 6.4, "L": 6, "uji": [{"nama": "1", "h1": 100 * math.e, "h2": 100, "t": 300}]})
+cocok("permeabilitas turun: h1/h2 = e → k = a L / (A t)", a_ * 6 / (A_ * 300), r["uji"][0]["k"])
+benar("permeabilitas turun: h2 ≥ h1 ditolak", js("hitung-permeabilitas.js", "turun", {"d": 1, "D": 6.4, "L": 6, "uji": [{"nama": "1", "h1": 50, "h2": 60, "t": 30}]})["galat"])
+
+# ---------------------------------------------------------------- hidrometer: N′ versi form lab = N/100 × % lolos No. 200
+r = js("hitung-hidrometer.js", "hitung", {"W": 50, "Gs": 2.68, "F10": 100, "P200form": 11.368, "Cm": 0, "Cd": 0, "batasLempung": 0.002,
+                                         "bacaan": [{"no": 1, "t": 1, "R": 34, "T": 27, "k": 1.5}], "ayakan": []})
+cocok("hidrometer: N′ form = N × P200/100", r["bacaan"][0]["P"] * 11.368 / 100, r["bacaan"][0]["Nform"])
+
 print("\nSemua cocok." if not gagal else f"\n{gagal} pemeriksaan gagal.")
 sys.exit(1 if gagal else 0)

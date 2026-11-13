@@ -151,6 +151,33 @@
       ]
     },
     {
+      "judul": "Permeabilitas",
+      "alat": [
+        {
+          "id": "permeabilitas-tetap",
+          "judul": "Permeabilitas tinggi tekan tetap (constant head)",
+          "standar": "ASTM D2434",
+          "status": "tersedia",
+          "deskripsi": "Debit, gradien hidrolik, dan koefisien permeabilitas k tiap percobaan beserta rata-ratanya, mengikuti form constant head.",
+          "skrip": [
+            "hitung-permeabilitas.js",
+            "alat-permeabilitas.js"
+          ]
+        },
+        {
+          "id": "permeabilitas-turun",
+          "judul": "Permeabilitas tinggi tekan turun (falling head)",
+          "standar": "ASTM D5084",
+          "status": "tersedia",
+          "deskripsi": "Luas buret dan benda uji, koefisien permeabilitas k dari penurunan muka air h1 ke h2, dan rata-rata tiga percobaan.",
+          "skrip": [
+            "hitung-permeabilitas.js",
+            "alat-permeabilitas.js"
+          ]
+        }
+      ]
+    },
+    {
       "judul": "Kekuatan dan konsolidasi",
       "alat": [
         {

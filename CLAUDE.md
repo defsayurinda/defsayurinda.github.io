@@ -71,7 +71,7 @@ Repo **publik** milik Defsa Yurinda (mahasiswa Teknik Sipil, Universitas Jambi).
 
 ## Praktikum Mekanika Tanah
 
-Pengolah data praktikum di `docs/praktikum/` (16 alat), disusun mengikuti form laboratorium Mekanika Tanah UNJA dan panduan laporan yang diberikan Defsa.
+Pengolah data praktikum di `docs/praktikum/` (18 alat), disusun mengikuti form laboratorium Mekanika Tanah UNJA dan panduan laporan yang diberikan Defsa.
 
 - Aturan angka panduan laporan: desimal koma, ribuan titik; berat dan volume 3 desimal; persen dan waktu 2 desimal; Gs dan berat isi 3 desimal.
 - `kerangka.js`: formulir (tabel `kolom`, `baris`, `daftar`), penyimpanan di browser, tautan berbagi, tempel dari Excel, ekspor TSV/CSV, cetak, dan hasil antaralat (`hasil`, `dariAlat`, `impor`; nilai hanya terisi lewat tombol).

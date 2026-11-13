@@ -134,12 +134,12 @@
       "id": "praktikum",
       "judul": "Praktikum Mekanika Tanah",
       "judul_pendek": "Praktikum Mekanika Tanah",
-      "deskripsi": "16 alat pengolah data praktikum Mekanika Tanah: formulir seperti lembar data laboratorium, langkah hitungan, grafik, dan ekspor ke Word dan Excel.",
+      "deskripsi": "18 alat pengolah data praktikum Mekanika Tanah: formulir seperti lembar data laboratorium, langkah hitungan, grafik, dan ekspor ke Word dan Excel.",
       "kategori": "praktikum",
       "lencana": "Praktikum",
       "halaman": "praktikum/",
-      "ringkas": "Enam belas alat pengolah data praktikum, dari kadar air sampai konsolidasi, sondir, dan SPT. Formulir seperti lembar data lab, grafik, hasil antaralat yang saling terhubung, dan ekspor ke Word dan Excel.",
-      "judul_rincian": "16 alat: sifat fisik, konsistensi, gradasi, klasifikasi, kepadatan, kekuatan, konsolidasi, sondir, dan SPT",
+      "ringkas": "Delapan belas alat pengolah data praktikum, dari kadar air sampai permeabilitas, konsolidasi, sondir, dan SPT. Formulir seperti lembar data lab, grafik, hasil antaralat yang saling terhubung, dan ekspor ke Word dan Excel.",
+      "judul_rincian": "18 alat: sifat fisik, konsistensi, gradasi, klasifikasi, kepadatan, permeabilitas, kekuatan, konsolidasi, sondir, dan SPT",
       "lencana_rincian": "Pengolah data praktikum",
       "rincian": [
         [

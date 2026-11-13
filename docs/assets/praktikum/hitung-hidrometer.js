@@ -46,7 +46,9 @@
       var L = b.L > 0 ? b.L : kedalamanL(RL);
       var K = b.K > 0 ? b.K : konstantaK(b.T, m.Gs);
       var D = K * Math.sqrt(L / b.t), P = a * Rc / m.W * 100;
-      return Object.assign({}, b, { k: k, Rc: Rc, RL: RL, L: L, Lmanual: b.L > 0, K: K, Kmanual: b.K > 0, eta: viskositasAir(b.T), D: D, P: P, Ptotal: P * F10 / 100 });
+      // N' seperti form lab UNJA: N' = N / 100 × % lolos saringan No. 200 (diisi pengguna).
+      var Nform = m.P200form > 0 ? P * m.P200form / 100 : null;
+      return Object.assign({}, b, { k: k, Rc: Rc, RL: RL, L: L, Lmanual: b.L > 0, K: K, Kmanual: b.K > 0, eta: viskositasAir(b.T), D: D, P: P, Ptotal: P * F10 / 100, Nform: Nform });
     });
     bacaan.forEach(function (b) {
       if (b.P > 100.5) peringatan.push('Bacaan menit ke-' + String(b.t).replace('.', ',') + ' memberi persen lolos lebih dari 100%. Periksa W, faktor a, atau koreksi.');
@@ -95,7 +97,7 @@
       peringatan.push('Isi berat tertahan saringan contoh hidrometer sampai No. 200 supaya pasir dan butir halus bisa dipisahkan.');
     }
     var D10 = HS.diameter(titik, 10), D30 = HS.diameter(titik, 30), D60 = HS.diameter(titik, 60);
-    var hasil = { galat: [], peringatan: peringatan, a: a, aRumus: aRumus, aManual: m.a > 0, F10: F10, Cm: Cm, Cd: Cd, bacaan: bacaan, ayakan: ayakan,
+    var hasil = { galat: [], peringatan: peringatan, a: a, aRumus: aRumus, aManual: m.a > 0, F10: F10, P200form: m.P200form > 0 ? m.P200form : null, Cm: Cm, Cd: Cd, bacaan: bacaan, ayakan: ayakan,
       titik: titik, fraksi: fraksi, batasLempung: batas, D10: D10, D30: D30, D60: D60,
       P4: p475, P10: lolos(2), P40: lolos(0.425), P200: p0075 };
     if (D10 && D60) hasil.Cu = D60 / D10;
